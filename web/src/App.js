@@ -93,6 +93,7 @@ class App extends Component {
     this._handleNodeRightClick = this._handleNodeRightClick.bind(this);
     this._handleLinkClick = this._handleLinkClick.bind(this);
     this._handleContextMenu = this._handleContextMenu.bind(this);
+    this._handleWindowResize = this._handleWindowResize.bind(this);
 
     // Visualization filter state values
     this._onLinkWeightRangeChange = this._onLinkWeightRangeChange.bind (this);
@@ -174,6 +175,9 @@ class App extends Component {
         nodeRelSize : 7,
         enableNodeDrag : true
       },
+      // preventing graph redraw spam
+      resizeTime : 0,
+      resizeTimeout : 300000,
 
       // Settings modal
       showSettingsModal : false,
@@ -216,7 +220,7 @@ class App extends Component {
         // get the key's value from localStorage
         let value = localStorage.getItem(key);
         console.log (" setting " + key + " => " + value);
-        // parse the localStorage string and setState
+        // parse the localStorage string and setStatehydrateState
         try {
           value = JSON.parse(value);
           this.setState({ [key]: value });
@@ -865,6 +869,23 @@ class App extends Component {
     this._translateGraph ();
     localStorage.setItem ("minNodeDegree", JSON.stringify (value));
   }
+  /*
+  aleph
+  */
+  _handleWindowResize() {
+    var d = +(new Date());
+    if (this.state.resizeTime > d + (this.state.resizeTimeout * 1000) || this.state.resizeTime == 0) {
+      this.setState({ resizeTime: d });
+      if (this.fg) {
+        // resizing the graph
+        console.log("this.fg is real");
+        this.fg.width = window.innerWidth;
+        this.fg.height = window.innerHeight * (85 / 100);
+        this.fg.refresh();
+      }
+      console.log("resized graph");
+    }
+  }
   /**
    * Render the modal settings dialog.
    *
@@ -957,6 +978,7 @@ class App extends Component {
    */
   componentDidMount() {
     this._hydrateState ();
+    window.addEventListener('resize', this._handleWindowResize);
   }
 
   render() {
@@ -991,14 +1013,14 @@ class App extends Component {
           </div>
         </header>
         <div>
-      	  <CodeMirror ref={this._codemirror}
+          <CodeMirror ref={this._codemirror}
                       value={this.state.code}
                       onChange={this._updateCode}
                       onKeyUp={this.handleKeyUpEvent} 
                       options={this.state.codeMirrorOptions}
                       autoFocus={true} />
           <div onContextMenu={this._handleContextMenu}>
-            { this._renderForceGraph () }
+            { this._renderForceGraph() }
             <ContextMenu id={this._contextMenuId} ref={this._contextMenu}/>
           </div>
           <div id="graph"></div>
@@ -1012,7 +1034,10 @@ class App extends Component {
       </div>
     );
   }
-    
+  
+  componentWillUnmount() {
+    window.removeEventListener('resize', this._handleWindowResize)
+  }
 }
 
 export default App;
