@@ -870,15 +870,14 @@ class App extends Component {
     localStorage.setItem ("minNodeDegree", JSON.stringify (value));
   }
   /*
-  aleph
+  testing
   */
   _handleWindowResize() {
     var d = +(new Date());
-    if (this.state.resizeTime > d + (this.state.resizeTimeout * 1000) || this.state.resizeTime == 0) {
+    if (this.state.resizeTime > d + this.state.resizeTimeout || this.state.resizeTime == 0) {
       this.setState({ resizeTime: d });
       if (this.fg) {
         // resizing the graph
-        console.log("this.fg is real");
         this.fg.width = window.innerWidth;
         this.fg.height = window.innerHeight * (85 / 100);
         this.fg.refresh();
