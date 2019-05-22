@@ -175,9 +175,9 @@ class App extends Component {
         nodeRelSize : 7,
         enableNodeDrag : true
       },
-      // preventing graph redraw spam
+      // Minimum time between re-rendering graph during resizing
+      resizeTimeout : 500, //ms
       resizeTime : 0,
-      resizeTimeout : 300000,
 
       // Settings modal
       showSettingsModal : false,
@@ -869,20 +869,25 @@ class App extends Component {
     this._translateGraph ();
     localStorage.setItem ("minNodeDegree", JSON.stringify (value));
   }
-  /*
-  testing
-  */
+  /**
+   * Handle browser resizing
+   *
+   * @private
+   */
   _handleWindowResize() {
-    var d = +(new Date());
-    if (this.state.resizeTime > d + this.state.resizeTimeout || this.state.resizeTime == 0) {
-      this.setState({ resizeTime: d });
+    var crnt = +(new Date());
+    var rt = +(this.state.resizeTime)
+    var to = +(this.state.resizeTimeout)
+
+    if (crnt > rt + to || rt == 0) {
+      this.setState({ resizeTime: crnt });
       if (this.fg) {
         // resizing the graph
         this.fg.width = window.innerWidth;
         this.fg.height = window.innerHeight * (85 / 100);
-        this.fg.refresh();
+        //this.fg.refresh();
+        this.fg.forceUpdate()
       }
-      console.log("resized graph");
     }
   }
   /**
