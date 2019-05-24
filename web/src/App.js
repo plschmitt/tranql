@@ -176,6 +176,7 @@ class App extends Component {
         enableNodeDrag : true
       },
       // Minimum time between re-rendering graph during resizing
+      resizeOn : true,
       graphHeight : window.innerHeight,
       graphWidth : window.innerWidth * (85/100),
 
