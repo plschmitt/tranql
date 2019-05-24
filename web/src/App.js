@@ -20,6 +20,7 @@ import AnswerViewer from './AnswerViewer.js';
 import Message from './Message.js';
 import Chain from './Chain.js';
 import ContextMenu from './ContextMenu.js';
+import SettingsPanel from './SettingsPanel.js'
 import { RenderInit, LinkFilter, NodeFilter, SourceDatabaseFilter } from './Render.js';
 import "react-tabs/style/react-tabs.css";
 import 'rc-slider/assets/index.css';
@@ -94,6 +95,7 @@ class App extends Component {
     this._handleLinkClick = this._handleLinkClick.bind(this);
     this._handleContextMenu = this._handleContextMenu.bind(this);
     this._handleWindowResize = this._handleWindowResize.bind(this);
+    this._handleSplitPaneDrag = this._handleSplitPaneDrag.bind(this);
 
     // Visualization filter state values
     this._onLinkWeightRangeChange = this._onLinkWeightRangeChange.bind (this);
@@ -122,6 +124,8 @@ class App extends Component {
     this._contextMenu = React.createRef ();
     this._answerViewer = React.createRef ();
     this._messageDialog = React.createRef ();
+    this._settingsPanel = React.createRef ();
+    this._graphAreaDiv = React.createRef ();
     
     // Cache graphs locally using IndexedDB web component.
     this._cache = new Cache ();
@@ -876,10 +880,26 @@ class App extends Component {
    * @private
    */
   _handleWindowResize() {
+    this._resizeGraph();
+  }
+  /**
+   * Handle user dragging the split pane divider
+   *
+   * @private
+   */
+  _handleSplitPaneDrag() {
+    this._resizeGraph();
+  }
+  /*
+
+  */
+  _resizeGraph() {
+    var w = this._graphAreaDiv.current.offsetWidth;
+
     if (this.state.resizeOn) {
       this.setState({
-        graphHeight:window.innerHeight * (85/100),
-        graphWidth: window.innerWidth
+        graphHeight : window.innerHeight * (85/100),
+        graphWidth : w
       })
     }
   }
@@ -1011,31 +1031,41 @@ class App extends Component {
             <IoIosPlayCircle data-tip="Answer Viewer - see each answer, its graph structure, links, knowledge source and literature provenance" id="answerViewer" className="App-control" onClick={this._handleShowAnswerViewer} />
           </div>
         </header>
-        <div>
-          <CodeMirror ref={this._codemirror}
-                      value={this.state.code}
-                      onChange={this._updateCode}
-                      onKeyUp={this.handleKeyUpEvent} 
-                      options={this.state.codeMirrorOptions}
-                      autoFocus={true} />
-          <div onContextMenu={this._handleContextMenu}>
-            { this._renderForceGraph() }
-            <ContextMenu id={this._contextMenuId} ref={this._contextMenu}/>
-          </div>
-          <div id="graph"></div>
-          <div id="info">
-            <ReactJson
-              src={this.state.selectedNode}
-              theme="monokai" />
-          </div>
-        </div>
-        <div id='next'/>
+      <CodeMirror ref={this._codemirror}
+          value={this.state.code}
+          onChange={this._updateCode}
+          onKeyUp={this.handleKeyUpEvent} 
+          options={this.state.codeMirrorOptions}
+          autoFocus={true} />
+       <SplitPane split="vertical" minSize={50} defaultSize={100} onDragStarted={this._handleSplitPaneDrag}>
+           <div ref={this._graphAreaDiv}>
+                <div onContextMenu={this._handleContextMenu}>
+                  { this._renderForceGraph() }
+                  <ContextMenu id={this._contextMenuId} ref={this._contextMenu}/>
+                </div>
+                <div id="graph"></div>
+                <div id="info">
+                  <ReactJson
+                    src={this.state.selectedNode}
+                    theme="monokai" />
+                </div>
+           </div>
+
+           <div>
+            <SettingsPanel propText="testing"
+                           ref={this._settingsPanel} />
+           </div>
+       </SplitPane>
+        
+      
+      <div id='next'/>
+
       </div>
     );
   }
   
   componentWillUnmount() {
-    window.removeEventListener('resize', this._handleWindowResize)
+    window.removeEventListener('resize', this._handleWindowResize);
   }
 }
 
