@@ -176,8 +176,8 @@ class App extends Component {
         enableNodeDrag : true
       },
       // Minimum time between re-rendering graph during resizing
-      resizeTimeout : 500, //ms
-      resizeTime : 0,
+      graphHeight : window.innerHeight,
+      graphWidth : window.innerWidth * (85/100),
 
       // Settings modal
       showSettingsModal : false,
@@ -709,8 +709,8 @@ class App extends Component {
       return <ForceGraph3D id="forceGraph3D"
                            ref={el => { this.fg = el; }}
                            graphData={this.state.graph}
-                           width={window.innerWidth}
-                           height={window.innerHeight * (84 / 100)} 
+                           width={this.state.graphWidth}
+                           height={this.state.graphHeight} 
                            nodeAutoColorBy={this.state.colorGraph ? "type" : ""}
                            linkAutoColorBy={this.state.colorGraph ? "type" : ""}
                            d3AlphaDecay={0.2}
@@ -731,8 +731,8 @@ class App extends Component {
       return <ForceGraph2D id="forceGraph3D"
                            ref={el => { this.fg = el; }}
                            graphData={this.state.graph}
-                           width={window.innerWidth}
-                           height={window.innerHeight * (85 / 100)}
+                           width={this.state.graphWidth}
+                           height={this.state.graphHeight} 
                            nodeAutoColorBy={this.state.colorGraph ? "type" : ""}
                            linkAutoColorBy={this.state.colorGraph ? "type" : ""}
                            d3AlphaDecay={0.2}
@@ -754,8 +754,8 @@ class App extends Component {
       return <ForceGraphVR id="forceGraphVR"
                            ref={el => { this.fg = el; }}
                            graphData={this.state.graph}
-                           width={window.innerWidth}
-                           height={window.innerHeight * (85 / 100)}
+                           width={this.state.graphWidth}
+                           height={this.state.graphHeight} 
                            nodeAutoColorBy={this.state.colorGraph ? "type" : ""}
                            linkAutoColorBy={this.state.colorGraph ? "type" : ""}
                            d3AlphaDecay={0.2}
@@ -875,21 +875,12 @@ class App extends Component {
    * @private
    */
   _handleWindowResize() {
-    var crnt = +(new Date());
-    var rt = +(this.state.resizeTime)
-    var to = +(this.state.resizeTimeout)
-
-    if (crnt > rt + to || rt == 0) {
-      this.setState({ resizeTime: crnt });
-      if (this.fg) {
-        // resizing the graph
-        this.fg.width = window.innerWidth;
-        this.fg.height = window.innerHeight * (85 / 100);
-        //this.fg.refresh();
-        this.fg.forceUpdate()
-      }
+    if (this.state.resizeOn) {
+      this.setState({
+        graphHeight:window.innerHeight * (85/100),
+        graphWidth: window.innerWidth
+      })
     }
-  }
   /**
    * Render the modal settings dialog.
    *
@@ -982,7 +973,9 @@ class App extends Component {
    */
   componentDidMount() {
     this._hydrateState ();
-    window.addEventListener('resize', this._handleWindowResize);
+    if (this.state.resizeOn) {
+      window.addEventListener('resize', this._handleWindowResize);
+    }
   }
 
   render() {
