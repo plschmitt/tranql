@@ -881,6 +881,7 @@ class App extends Component {
         graphWidth: window.innerWidth
       })
     }
+  }
   /**
    * Render the modal settings dialog.
    *
