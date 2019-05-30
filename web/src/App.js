@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { css } from '@emotion/core';
-import { Button } from 'reactstrap';
+import { Button, UncontrolledCollapse } from 'reactstrap';
 import { Modal } from 'react-bootstrap';
 import { ForceGraph3D, ForceGraph2D, ForceGraphVR } from 'react-force-graph';
 import ReactJson from 'react-json-view'
@@ -30,6 +30,7 @@ import 'codemirror/addon/hint/show-hint';
 import 'codemirror/addon/hint/sql-hint';
 import 'codemirror/addon/hint/show-hint.css'; // without this css hints won't show
 import './App.css';
+import './SettingsPanel.css';
 require('create-react-class');
 require('codemirror/lib/codemirror.css');
 require('codemirror/mode/sql/sql');
@@ -96,6 +97,7 @@ class App extends Component {
     this._handleContextMenu = this._handleContextMenu.bind(this);
     this._handleWindowResize = this._handleWindowResize.bind(this);
     this._handleSplitPaneDrag = this._handleSplitPaneDrag.bind(this);
+    this._toggleSettingsPanel = this._toggleSettingsPanel.bind(this);
 
     // Visualization filter state values
     this._onLinkWeightRangeChange = this._onLinkWeightRangeChange.bind (this);
@@ -124,7 +126,6 @@ class App extends Component {
     this._contextMenu = React.createRef ();
     this._answerViewer = React.createRef ();
     this._messageDialog = React.createRef ();
-    this._settingsPanel = React.createRef ();
     this._graphAreaDiv = React.createRef ();
     
     // Cache graphs locally using IndexedDB web component.
@@ -183,6 +184,9 @@ class App extends Component {
       resizeOn : true,
       graphHeight : window.innerHeight,
       graphWidth : window.innerWidth * (85/100),
+
+      // Settings Panel
+      showSettingsPanel : false,
 
       // Settings modal
       showSettingsModal : false,
@@ -384,6 +388,8 @@ class App extends Component {
    * @private
    */
   _executeQuery () {
+    this._toggleSettingsPanel();
+
     console.log ("--query: ", this.state.code);
     // Clear the visualization so it's obvious that data from the last query is gone
     // and we're fetching new data for the current query. 
@@ -882,26 +888,104 @@ class App extends Component {
   _handleWindowResize() {
     this._resizeGraph();
   }
-  /**
-   * Handle user dragging the split pane divider
-   *
-   * @private
-   */
-  _handleSplitPaneDrag() {
+  _handleSplitPaneDrag(w) {
     this._resizeGraph();
   }
-  /*
-
-  */
+  _toggleSettingsPanel() {
+    this.setState(
+      {showSettingsPanel : !this.state.showSettingsPanel},
+      this._resizeGraph
+    );
+  }
   _resizeGraph() {
-    var w = this._graphAreaDiv.current.offsetWidth;
-
+    var w = this.state.showSettingsPanel ? this._graphAreaDiv.current.offsetWidth : window.innerWidth;
     if (this.state.resizeOn) {
       this.setState({
         graphHeight : window.innerHeight * (85/100),
         graphWidth : w
       })
     }
+  }
+  /*
+  _settingsPanelCallback = (e) => {
+    var t = e.currentTarget.callbacktype;
+    switch(t) {
+    }
+  }*/
+
+  _renderSettingsPanel() {
+    if (!this.state.showSettingsPanel) {
+      return ( <Button className="settingsPanelOpener" onClick={this._toggleSettingsPanel}>{"<"}</Button> );
+    }
+    return (
+      <div className="settingsPanel">
+        <h2 className="settingsPanelHeader">Settings</h2>
+        <Button className="settingsPanelCloser" onClick={this._toggleSettingsPanel} ref={this._settingsPanelHideButton}>X</Button>
+
+        <Button id="sptoggle1" className="settingsPanelButton">Visualization</Button>
+        <UncontrolledCollapse toggler="#sptoggle1">
+          <div className="settingsPanelCollapsible">
+            <b>Visualization Mode and Graph Colorization</b> <br/>
+
+            <input type="radio" name="visMode"
+                   value="3D"
+                   checked={this.state.visMode === "3D"} 
+                   onChange={this._handleUpdateSettings} />3D &nbsp;
+            <input type="radio" name="visMode" 
+                   value="2D"
+                   checked={this.state.visMode === "2D"} 
+                   onChange={this._handleUpdateSettings} />2D &nbsp;
+            <input type="radio" name="visMode" 
+                   value="VR"
+                   checked={this.state.visMode === "VR"} 
+                   onChange={this._handleUpdateSettings} />VR &nbsp;&nbsp;
+            <input type="checkbox" name="colorGraph"
+                   checked={this.state.colorGraph}
+                   onChange={this._handleUpdateSettings} /> Color the graph.
+            <br/>
+            <div className={"divider"}/>
+            <br/>
+
+            <b>Use Cache</b> <br/>
+            <input type="checkbox" name="useCache"
+                   checked={this.state.useCache}
+                   onChange={this._handleUpdateSettings} /> Use cached responses.
+            <Button id="clearCache"
+                    outline className="App-control"
+                    color="primary" onClick={this._clearCache}>
+              Clear the cache
+            </Button>
+          </div>
+        </UncontrolledCollapse>
+          
+        <Button id="sptoggle2" className="settingsPanelButton">Graph Structure</Button>
+        <UncontrolledCollapse toggler="#sptoggle2">
+          <div className="settingsPanelCollapsible">
+            <b>Link Weight Range</b> Min: [{this.state.linkWeightRange[0] / 100}] Max: [{this.state.linkWeightRange[1] / 100}]<br/>
+            Include only links with a weight in this range.
+            <Range allowCross={false} defaultValue={this.state.linkWeightRange} onChange={this._onLinkWeightRangeChange} />
+
+            <b>Node Connectivity Range</b> Min: [{this.state.nodeDegreeRange[0]}] Max: [{this.state.nodeDegreeRange[1]}] (reset on load)<br/>
+            Include only nodes with a number of connections in this range.
+            <Range allowCross={false}
+                   defaultValue={this.state.nodeDegreeRange}
+                   onChange={this._onNodeDegreeRangeChange}
+                   max={this.state.nodeDegreeMax}/>
+          </div>
+        </UncontrolledCollapse>
+
+        <Button id="sptoggle3" className="settingsPanelButton">Knowledge Sources</Button>
+        <UncontrolledCollapse toggler="#sptoggle3">
+          <div className="settingsPanelCollapsible">
+            <b>Sources</b> Filter graph edges by source database. Deselecting a database deletes all associations from that source.
+            <div className="settingsPanelLowPadding">
+            {this._renderCheckboxes()}
+            </div>
+          </div>
+        </UncontrolledCollapse>
+        
+      </div>
+    );
   }
   /**
    * Render the modal settings dialog.
@@ -997,6 +1081,7 @@ class App extends Component {
     this._hydrateState ();
     if (this.state.resizeOn) {
       window.addEventListener('resize', this._handleWindowResize);
+      this._resizeGraph();
     }
   }
 
@@ -1037,24 +1122,21 @@ class App extends Component {
           onKeyUp={this.handleKeyUpEvent} 
           options={this.state.codeMirrorOptions}
           autoFocus={true} />
-       <SplitPane split="vertical" minSize={50} defaultSize={100} onDragStarted={this._handleSplitPaneDrag}>
-           <div ref={this._graphAreaDiv}>
-                <div onContextMenu={this._handleContextMenu}>
-                  { this._renderForceGraph() }
-                  <ContextMenu id={this._contextMenuId} ref={this._contextMenu}/>
-                </div>
-                <div id="graph"></div>
-                <div id="info">
-                  <ReactJson
-                    src={this.state.selectedNode}
-                    theme="monokai" />
-                </div>
-           </div>
+       <SplitPane split="vertical" minSize={500} maxSize={-200} defaultSize={"75%"} onChange={this._handleSplitPaneDrag}>
+          <div ref={this._graphAreaDiv}>
+              <div onContextMenu={this._handleContextMenu}>
+                { this._renderForceGraph() }
+                <ContextMenu id={this._contextMenuId} ref={this._contextMenu}/>
+              </div>
+              <div id="graph"></div>
+              <div id="info">
+                <ReactJson
+                  src={this.state.selectedNode}
+                  theme="monokai" />
+              </div>
+          </div>
 
-           <div>
-            <SettingsPanel propText="testing"
-                           ref={this._settingsPanel} />
-           </div>
+          { this._renderSettingsPanel() }
        </SplitPane>
         
       

@@ -1,0 +1,76 @@
+.settingsPanel {
+    background: white;
+    color: #262626;
+    height: 100%;
+    width: 100%;
+    overflow: auto;
+}
+.settingsPanelCollapsible {
+    padding: 12px;
+    padding-right: 6px;
+    margin-bottom: 24px;
+}
+.settingsPanelButton {
+    background-color: #ffffff;
+    color: #262626;
+    font-size: 18px;
+    width: 100%;
+    border: none;
+    border-bottom: 1px solid #262626;
+    border-radius: 0px;
+    text-align: center;
+    outline: none;
+}
+.settingsPanelButton:focus, .settingsPanelButton:active, .settingsPanelButton:hover, .settingsPanelButton.btn.btn_secondary {
+    background-color: #ffffff !important;
+    color: #262626 !important;
+    outline: 0;
+    box-shadow: none;
+}
+.btn:hover, .btn:active, .btn:focus {
+    box-shadow: none !important;
+}
+.settingsPanelHeader {
+    display: inline;
+    color: #262626;
+    text-align: center;
+    width: 100%;
+    margin-bottom: 20px;
+    margin-left: 12px;
+}
+.settingsPanel .btn-secondary:not(:disabled):not(.disabled).active {
+    color: #262626;
+    background-color: transparent;
+    box-shadow: none;
+}
+.settingsPanelCloser, .settingsPanelCloser.btn {
+    display: inline;
+    background-color: transparent !important;
+    color: #262626 !important;
+    border: none;
+    font-size: 18px;
+    font-weight: lighter;
+    outline: none;
+    box-shadow: none;
+    float: right;
+    transition: none;
+}
+.settingsPanelOpener, .settingsPanelOpener.btn {
+    background-color: transparent !important;
+    color: white !important;
+    border: none;
+    font-size: 18px;
+    font-weight: lighter;
+    outline: none;
+    box-shadow: none;
+    float: right;
+}
+label {
+    padding-bottom: 0px;
+    padding-top: 0px;
+    margin: 0px;
+}
+.splitPane {
+    height: 100%;
+    position: relative;
+}
