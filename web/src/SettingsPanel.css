@@ -1,0 +1,82 @@
+:root {
+    --primary: #ffffff;
+    --accent: #262626;
+    --lightaccent: #cecece;
+}
+#graphArea {
+    overflow: hidden;
+}
+.SplitPane {
+    height: 84% !important;
+    position: relative;
+}
+#settingsPanel {
+    background: var(--primary);
+    color: var(--accent);
+    height: 100%;
+    width: 100%;
+    overflow: auto;
+}
+.settingsPanelCollapsible {
+    padding: 12px;
+    padding-right: 6px;
+    margin-bottom: 24px;
+}
+.settingsPanelButton {
+    background-color: var(--primary);
+    color: var(--accent);
+    font-size: 18px;
+    width: 100%;
+    border: none;
+    border-bottom: 1px solid var(--lightaccent);
+    border-radius: 0px;
+    text-align: center;
+    outline: none;
+}
+/* reactstrap defaults overriding */
+.settingsPanel .btn:hover, .settingsPanel .btn:active, .settingsPanel .btn:focus {
+    box-shadow: none !important;
+}
+.settingsPanelButton:focus, .settingsPanelButton:active, .settingsPanelButton:hover, .settingsPanelButton.btn.btn_secondary {
+    background-color: var(--primary) !important;
+    color: var(--accent) !important;
+    outline: 0;
+    box-shadow: none !important;
+}
+.settingsPanelHeader {
+    display: inline;
+    color: var(--accent);
+    text-align: center;
+    width: 100%;
+    margin-bottom: 20px;
+    margin-left: 12px;
+}
+.settingsPanel Label {
+    font-style: italic;
+}
+.settingsPanel .btn-secondary:not(:disabled):not(.disabled).active {
+    color: var(--accent);
+}
+.settingsPanelOpener, .settingsPanelCloser {
+    background-color: transparent !important;
+    border: none;
+    font-size: 18px;
+    font-weight: lighter;
+    outline: none;
+    box-shadow: none !important;
+    float: right;
+    transition: none;
+}
+.settingsPanelCloser, .settingsPanelCloser.btn {
+    display: inline;
+    color: var(--accent) !important;
+}
+.settingsPanelOpener, .settingsPanelOpener.btn {
+    background-color: transparent !important;
+    color: var(--primary) !important;
+}
+label {
+    padding-bottom: 2px;
+    padding-top: 0px;
+    margin: 0px;
+}
